@@ -20,7 +20,7 @@ I do not use too complicated data structure to handle the algorithm, for there's
 
 ### Build & Instruction
 
-I write the codes on eclipse. Unfortunately I am not familiar to run Java on terminal, so I provide the .jar file named as Main.jar. Please run the code by
+I write the codes on eclipse. Unfortunately I am not familiar to run Java built by eclipse on terminal, so I provide the .jar file named as Main.jar. Please run the code by
 ```
 $: java -jar Main.jar
 ```
