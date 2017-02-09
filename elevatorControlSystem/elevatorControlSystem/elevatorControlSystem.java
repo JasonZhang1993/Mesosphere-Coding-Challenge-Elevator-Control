@@ -69,7 +69,7 @@ public class elevatorControlSystem implements elevatorControlInterface{
 		// 1. check elevators that are on the same way
 		// 2. idle elevators
 		// 3. elevators that will finish serving
-		// compare the time to pickup 
+
 		List<Integer> pickTime = new ArrayList<>(this.num_elv);
 		int[] cond = new int[this.num_elv];
 		for (Elevator e : this.elevators){
@@ -81,12 +81,12 @@ public class elevatorControlSystem implements elevatorControlInterface{
 			else{ // check 1.
 				List<Integer> floors = e.getGoalFloors();
 				
-				if (direction > 0 && e.getDirection() > 0 && pickupFloor > e.getCurrFloor() && pickupFloor <= Collections.max(floors)){ // up
+				if (direction > 0 && e.getDirection() > 0 && pickupFloor >= e.getCurrFloor() && pickupFloor <= Collections.max(floors)){ // up
 						
 					t = pickupFloor - e.getCurrFloor();
 					cond[this.elevators.indexOf(e)] = 1;
 				}
-				else if (direction < 0 && e.getDirection() < 0 && pickupFloor < e.getCurrFloor() && pickupFloor >= Collections.min(floors)){ // down
+				else if (direction < 0 && e.getDirection() < 0 && pickupFloor <= e.getCurrFloor() && pickupFloor >= Collections.min(floors)){ // down
 						
 					t = e.getCurrFloor() - pickupFloor;
 					cond[this.elevators.indexOf(e)] = 1;
@@ -104,12 +104,14 @@ public class elevatorControlSystem implements elevatorControlInterface{
 			pickTime.add(t);
 		}
 		
+		// compare the time to pickup 
 		//  choose min time
 		int id = pickTime.indexOf(Collections.min(pickTime));
 		Elevator e = this.elevators.get(id);
 		psg.setElv(id);
-		System.out.println("picked up by elv " + id + ", condition " + cond[id]);
-		if (cond[id] == 1){// find goal floors location
+
+		// add goal floors to the chosen 
+		if (cond[id] == 1){// Condition 1: need to find goal floors location
 			List<Integer> floors = e.getGoalFloors();
 			int pickLoc = -1, dropLoc = -1, i = 0;
 			if (direction > 0){
@@ -172,24 +174,18 @@ public class elevatorControlSystem implements elevatorControlInterface{
 		
 		// check passenger event
 		if (e.getGoalFloors().contains(currFloor)){
-			if (e.getGoalFloors().get(0) == currFloor){
 	
-				// find pickup
-				if (!this.passengers.isEmpty()){
-					this.findPickup(e, currFloor);
-				}
+			// find pickup
+			if (!this.passengers.isEmpty())
+				this.findPickup(e, currFloor);
 	
-				// find drop off
-				if (!e.getPassengers().isEmpty())
-					this.findDropoff(e, currFloor);
+			// find drop off
+			if (!e.getPassengers().isEmpty())
+				this.findDropoff(e, currFloor);
 				
-				// drop current floor from goals
+			// drop current floor from goals
+			if (e.getGoalFloors().get(0) == currFloor){
 				e.dropGoalFloor(0);
-			}
-			else{
-				if (!this.passengers.isEmpty()){
-					this.findPickup(e, currFloor);
-				}
 			}
 		}
 		
@@ -230,13 +226,16 @@ public class elevatorControlSystem implements elevatorControlInterface{
 	}
 	
 	private void findDropoff(Elevator e, int currFloor){
+		boolean flag = false;
 		for (int i = 0;i < e.getPassengers().size();i++){
 			if (e.getPassengers().get(i).getDropFloor() == currFloor){
 				e.getPassengers().get(i).setState(state_P.ARRIVE);
 				e.getPassengers().remove(i);
 				i--;
+				flag = true;
 			}
 		}
+		if (flag && currFloor != e.getGoalFloors().get(0)) e.dropGoalFloor(e.getGoalFloors().indexOf(currFloor));
 	}
 
 }

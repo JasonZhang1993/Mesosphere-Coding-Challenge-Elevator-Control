@@ -1,7 +1,7 @@
 package elevatorControlSystem;
 
 public interface elevatorControlInterface {
-//	String ?
+//	String
 	public String status();
 	
 //	integer (floor) or list (floors)
